@@ -4,8 +4,11 @@ import {
   HttpParams,
   HttpHeaders,
   HttpErrorResponse,
+  HttpRequest,
+  HttpEventType,
 } from '@angular/common/http';
 import { Post } from '../post';
+import { Observable, forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-http-client-test',
@@ -64,7 +67,7 @@ export class HttpClientTestComponent implements OnInit {
 
   put() {
     this.http
-      .put<Post>('https://jsonplaceholder.typicode.com/posts/1000', {
+      .put<Post>('https://jsonplaceholder.typicode.com/posts/1', {
         id: 1,
         title: 'Prevision Lunes',
         body: 'Lluvias',
@@ -103,4 +106,53 @@ export class HttpClientTestComponent implements OnInit {
         this.resultadoPeticion = data;
       });
   }
+
+  peti_paral() {
+    const observable = forkJoin(
+      this.http.get<Post>('https://jsonplaceholder.typicode.com/posts/4'),
+      this.http.get<Post>('https://jsonplaceholder.typicode.com/posts/5')
+    );
+
+    observable.subscribe((data) => {
+      this.resultadoPeticion = data;
+    });
+  }
+
+  // post_progresEvents() {
+  //   const request = new HttpRequest(
+  //     'POST',
+  //     'https://jsonplaceholder.typicode.com/posts',
+  //     {
+  //       title: 'Crítica de la película',
+  //       body: 'Me ha gustado mucho',
+  //       userId: 1,
+  //     },
+  //     { reportProgress: true }
+  //   );
+  //   this.http.request(request).subscribe((event) => {
+  //     if (event.type === HttpEventType.UploadProgress) {
+  //       if (event?.loaded && event?.total) {
+  //         const percentDone = Math.round((100 * event.loaded) / event.total);
+  //         console.log(`Fichero transferido en un ${percentDone}%`);
+  //       }
+  //     } else if (event.type === HttpEventType.Response) {
+  //       this.resultadoPeticion = event.body;
+  //     }
+  //   });
+  // }
+
+  // peti_secuencia() {
+  //   this.http.get<Post>('https://jsonplaceholder.typicode.com/posts/1')
+  //   .switchMap((data) => {
+  //       data.title = '(MODIFICADO) ' + data.title;
+  //       return;
+  //       this.http.put<Post>(
+  //         'https://jsonplaceholder.typicode.com/posts/1',
+  //         data
+  //       );
+  //     })
+  //     .subscribe((data) => {
+  //       this.resultadoPeticion = data;
+  //     });
+  // }
 }
